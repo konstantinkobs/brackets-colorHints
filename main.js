@@ -54,6 +54,42 @@ define(function (require, exports, module) {
     };
     
     /**
+     * Extracts the color from hint text
+     */
+    ColorHint.prototype.getColorFromString = function(string){
+        
+        var pos = string.lastIndexOf(">");
+        return string.substring(pos + 1);
+        
+    }
+    
+    /**
+     * Compares the brightness of two colors
+     */
+    ColorHint.prototype.compareBrightness = function(a, b){
+        
+        var ch = new ColorHint();
+        
+        // Get Colors
+        var c1 = ch.getColorFromString(a);
+        var c2 = ch.getColorFromString(b);
+        
+        // Convert to six characters
+        var c1 = ch.toSix(c1);
+        var c2 = ch.toSix(c2);
+        
+        // Calculate Brightness
+        var b1 = ch.calcBrightness(c1);
+        var b2 = ch.calcBrightness(c2);
+        
+        // Compare Brightness
+        if(b1 < b2) return -1;
+        if(b1 > b2) return 1;
+        return 0;
+        
+    }
+    
+    /**
      * Returns an array with all color values (without '#')
      * inside of the current file
      */
@@ -71,7 +107,13 @@ define(function (require, exports, module) {
         while (match = regex.exec(text)) {
             
             // the hexcode without #
-            var code = this.toSix(match[1]);
+            var code = match[1];
+            
+            // Convert to 6 characters
+            //code = this.toSix(code);
+            
+            // Make short, if possible
+            code = this.toThree(code);
             
             var html = "<div style='display: inline-block; margin-right: 5px; height: 10px; width: 10px; background: #" + code + ";'></div>" + code;
             
@@ -84,8 +126,28 @@ define(function (require, exports, module) {
             
         }
         
+        // Sort this array
+        matches = matches.sort(this.compareBrightness);
+        
         return matches;
     }
+    
+    /**
+     * Calculates the brightness of a hex color.
+     * The brighter, the higher the calculated value.
+     * 
+     * the color must be six characters long
+     * 
+     * returns an array with color and brightness
+     */
+    ColorHint.prototype.calcBrightness = function(hexCode){
+        var r = parseInt(hexCode.substr(0, 2),16);
+        var g = parseInt(hexCode.substr(2, 2),16);
+        var b = parseInt(hexCode.substr(4, 2),16);
+
+        return ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    }
+    
     
     /**
      * Calculates a long version of a hex color.
@@ -145,23 +207,12 @@ define(function (require, exports, module) {
     };
     
     /**
-     * Extracts the color from hint text
-     */
-    ColorHint.prototype.getColorFromString = function(string){
-        
-        var pos = string.lastIndexOf(">");
-        return string.substring(pos + 1);
-        
-    }
-    
-    /**
      * Inserts the color
      */
     ColorHint.prototype.insertHint = function (hint) {
         
+        // Get the color from hint
         var code = this.getColorFromString(hint);
-        
-        code = this.toThree(code);
         
         // Document objects represent file contents
         var currentDoc = DocumentManager.getCurrentDocument();
