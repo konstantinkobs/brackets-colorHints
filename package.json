@@ -1,0 +1,9 @@
+{
+    "name": "colorhints",
+    "title": "colorHints",
+    "author": "Konstantin Kobs",
+    "homepage": "",
+    "version": "0.0.1",
+    "engines": { "brackets": ">=0.23" },
+    "description": "Show colors you used in your CSS file before as code hints."
+}
