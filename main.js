@@ -41,11 +41,7 @@ define(function (require, exports, module) {
 
     
     /**
-     * Get the CSS style text of the file open in the editor for this hinting session.
-     * For a CSS file, this is just the text of the file. For an HTML file,
-     * this will be only the text in the <style> tags.
-     *
-     * @return {string} the "css" text that can be sent to CSSUtils to extract all named flows.
+     * Gets the text of the css file.
      */
     ColorHint.prototype.getCssStyleText = function () {
         
@@ -58,7 +54,7 @@ define(function (require, exports, module) {
     };
     
     /**
-     * Returns an array with alle color values (without '#')
+     * Returns an array with all color values (without '#')
      * inside of the current file
      */
     ColorHint.prototype.getAllColors = function(){
@@ -75,7 +71,7 @@ define(function (require, exports, module) {
         while (match = regex.exec(text)) {
             
             // the hexcode without #
-            var code = match[1];
+            var code = this.toSix(match[1]);
             
             var html = "<div style='display: inline-block; margin-right: 5px; height: 10px; width: 10px; background: #" + code + ";'></div>" + code;
             
@@ -91,38 +87,45 @@ define(function (require, exports, module) {
         return matches;
     }
     
+    /**
+     * Calculates a long version of a hex color.
+     */
+    ColorHint.prototype.toSix = function(color){
+        if(color.length === 6){
+            return color;
+        }
+        else{
+            return color.charAt(0) + color.charAt(0) + color.charAt(1) + color.charAt(1) + color.charAt(2) + color.charAt(2);
+        }
+    }
+    
+    /**
+     * Calculates a short version of a hex color.
+     */
+    ColorHint.prototype.toThree = function(color){
+        if(color.length === 3){
+            return color;
+        }
+        else if(color.charAt(0) === color.charAt(1) && color.charAt(2) === color.charAt(3) && color.charAt(4) === color.charAt(5)){
+            return color.charAt(0) + color.charAt(2) + color.charAt(4);
+        }
+        else{
+            return color;
+        }
+    }
+    
+    /**
+     * Checks, if it is possible to give hints.
+     */
     ColorHint.prototype.hasHints = function (editor, implicitChar) {
         this.editor = editor;
-        
-        console.log("hasHints wurde aufgerufen");
         
         return implicitChar ? implicitChar === "#" : false;
         
     };
-       
+
     /**
-     * Returns a list of availble CSS propertyname or -value hints if possible for the current
-     * editor context. 
-     * 
-     * @param {Editor} implicitChar 
-     * Either null, if the hinting request was explicit, or a single character
-     * that represents the last insertion and that indicates an implicit
-     * hinting request.
-     *
-     * @return {jQuery.Deferred|{
-     *              hints: Array.<string|jQueryObject>,
-     *              match: string,
-     *              selectInitial: boolean,
-     *              handleWideResults: boolean}}
-     * Null if the provider wishes to end the hinting session. Otherwise, a
-     * response object that provides:
-     * 1. a sorted array hints that consists of strings
-     * 2. a string match that is used by the manager to emphasize matching
-     *    substrings when rendering the hint list
-     * 3. a boolean that indicates whether the first result, if one exists,
-     *    should be selected by default in the hint list window.
-     * 4. handleWideResults, a boolean (or undefined) that indicates whether
-     *    to allow result string to stretch width of display.
+     * Calculates the hints
      */
     ColorHint.prototype.getHints = function (implicitChar) {
         
@@ -141,6 +144,9 @@ define(function (require, exports, module) {
 
     };
     
+    /**
+     * Extracts the color from hint text
+     */
     ColorHint.prototype.getColorFromString = function(string){
         
         var pos = string.lastIndexOf(">");
@@ -149,18 +155,13 @@ define(function (require, exports, module) {
     }
     
     /**
-     * Inserts a given CSS protertyname or -value hint into the current editor context. 
-     * 
-     * @param {String} hint 
-     * The hint to be inserted into the editor context.
-     * 
-     * @return {Boolean} 
-     * Indicates whether the manager should follow hint insertion with an
-     * additional explicit hint request.
+     * Inserts the color
      */
     ColorHint.prototype.insertHint = function (hint) {
         
         var code = this.getColorFromString(hint);
+        
+        code = this.toThree(code);
         
         // Document objects represent file contents
         var currentDoc = DocumentManager.getCurrentDocument();
