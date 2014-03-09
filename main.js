@@ -98,7 +98,7 @@ define(function (require, exports, module) {
         var text = this.getCssStyleText();
         
         // RegEx for matching HEX color values
-        var regex = /[ :]#([0123456789abcdef]{3}|[0123456789abcdef]{6})[\W;]/i;
+        var regex = /[ :]#([0-9a-f]{3}|[0-9a-f]{6})[\W;]/ig;
         
         
         var matches = [];
