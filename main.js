@@ -30,6 +30,7 @@ define(function (require, exports, module) {
     var AppInit             = brackets.getModule("utils/AppInit"),
         CodeHintManager     = brackets.getModule("editor/CodeHintManager"),
         DocumentManager     = brackets.getModule("document/DocumentManager"),
+        CSSUtils            = brackets.getModule("language/CSSUtils"),
         LanguageManager     = brackets.getModule("language/LanguageManager");
     
     /**
@@ -100,6 +101,8 @@ define(function (require, exports, module) {
         // RegEx for matching HEX color values
         var regex = /[ :]#([0-9a-f]{3}|[0-9a-f]{6})[\W;]/ig;
         
+        // The typed text for filtering
+        var filter = this.info.values[0].substr(1).toLowerCase();
         
         var matches = [];
         // find all matches
@@ -107,13 +110,19 @@ define(function (require, exports, module) {
         while (match = regex.exec(text)) {
             
             // the hexcode without #
-            var code = match[1];
+            var code = match[1].toLowerCase();
             
             // Convert to 6 characters
-            //code = this.toSix(code);
+            var check = this.toSix(code);
             
             // Make short, if possible
             code = this.toThree(code);
+            
+            // If the found color doesn't begin with the typed color,
+            // then go to the next one
+            if(code.indexOf(filter) !== 0 && check.indexOf(filter) !== 0){
+                continue;
+            }
             
             var html = "<div style='display: inline-block; margin-right: 5px; height: 10px; width: 10px; background: #" + code + ";'></div>" + code;
             
@@ -180,6 +189,7 @@ define(function (require, exports, module) {
      * Checks, if it is possible to give hints.
      */
     ColorHint.prototype.hasHints = function (editor, implicitChar) {
+        
         this.editor = editor;
         
         return implicitChar ? implicitChar === "#" : false;
@@ -191,7 +201,29 @@ define(function (require, exports, module) {
      */
     ColorHint.prototype.getHints = function (implicitChar) {
         
-        if(implicitChar !== "#"){
+//        if(implicitChar !== "#"){
+//            return null;
+//        }
+        
+        // Get the current cursor position
+        var cursor = this.editor.getCursorPos();
+        
+        // Get information for the current typed value
+        this.info = CSSUtils.getInfoAtPos(this.editor, cursor);
+        
+        // The value that was typed
+        var typed = this.info.values[0];
+        
+        // RegEx for Hex color
+        var regex = /^#[a-f0-9]*$/i;
+        
+        // Checks if it is a hex color and whether it is
+        // useful to provide hints (if everything is written,
+        // no more hints are needed)
+        var hex = regex.test(typed) && (typed.length < 7);
+
+        // If it is not a hex color (anymore) don't give hints
+        if(!hex){
             return null;
         }
         
@@ -211,6 +243,9 @@ define(function (require, exports, module) {
      */
     ColorHint.prototype.insertHint = function (hint) {
         
+        // Get offset to hash
+        var offset = this.info.offset - 1;
+        
         // Get the color from hint
         var code = this.getColorFromString(hint);
         
@@ -220,8 +255,11 @@ define(function (require, exports, module) {
         // Get the position of our cursor in the document
         var pos = this.editor.getCursorPos();
         
+        // Where the range starts that should be replaced
+        var start = {line: pos.line , ch: pos.ch - offset};
+        
         // Add some text in our document
-        currentDoc.replaceRange(code, pos);
+        currentDoc.replaceRange(code, start, pos);
         
     };
     

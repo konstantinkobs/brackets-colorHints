@@ -10,9 +10,11 @@
 }
 html, body {
 	background: #222;
+    color: #115599;
 }
 a {
 	text-decoration: none;
+    color: #94b4f3;
 }
 a:hover {
 	text-decoration: underline;
@@ -22,6 +24,7 @@ a:hover {
 	max-width: 960px;
 	margin: 0 auto;
 	padding: 50px 30px;
+    color: 
 }
 .header {
 	display: inline-block;
@@ -29,6 +32,7 @@ a:hover {
 	color: #eee;
 	font-size: 3em;
     font-weight: 100;
+    border: 1px solid #444;
 }
 .header:hover{
 	text-decoration: none;
