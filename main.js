@@ -201,10 +201,6 @@ define(function (require, exports, module) {
      */
     ColorHint.prototype.getHints = function (implicitChar) {
         
-//        if(implicitChar !== "#"){
-//            return null;
-//        }
-        
         // Get the current cursor position
         var cursor = this.editor.getCursorPos();
         
