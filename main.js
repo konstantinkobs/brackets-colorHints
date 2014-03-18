@@ -48,8 +48,6 @@ define(function (require, exports, module) {
         
         var text = this.editor.document.getText();
         
-        //console.log(text);
-        
         return text;
         
     };
