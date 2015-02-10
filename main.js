@@ -253,7 +253,9 @@ define(function (require, exports, module) {
         var start = {line: pos.line , ch: pos.ch - offset};
         
         // Add some text in our document
-        currentDoc.replaceRange(code, start, pos);
+        // currentDoc.replaceRange(code, start, pos);
+        // HACK FOR BRACKETS!!!
+        this.editor._codeMirror.replaceRange(code, start, pos);
         
     };
     
