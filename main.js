@@ -100,7 +100,7 @@ define(function (require, exports, module) {
         var regex = /[ :]#([0-9a-f]{3}|[0-9a-f]{6})[\W;]/ig;
         
         // The typed text for filtering
-        var filter = this.info.values[0].substr(1).toLowerCase();
+        var filter = this.typed.substr(1).toLowerCase();
         
         var matches = [];
         // find all matches
@@ -197,8 +197,7 @@ define(function (require, exports, module) {
     /**
      * Calculates the hints
      */
-    ColorHint.prototype.getHints = function (implicitChar) {
-        
+    ColorHint.prototype.getHints = function (implicitChar) {        
         // Get the current cursor position
         var cursor = this.editor.getCursorPos();
         
@@ -206,7 +205,7 @@ define(function (require, exports, module) {
         this.info = CSSUtils.getInfoAtPos(this.editor, cursor);
         
         // The value that was typed
-        var typed = this.info.values[0];
+        this.typed = this.info.values[0].trim();
         
         // RegEx for Hex color
         var regex = /^#[a-f0-9]*$/i;
@@ -214,7 +213,7 @@ define(function (require, exports, module) {
         // Checks if it is a hex color and whether it is
         // useful to provide hints (if everything is written,
         // no more hints are needed)
-        var hex = regex.test(typed) && (typed.length < 7);
+        var hex = regex.test(this.typed) && (this.typed.length < 7);
 
         // If it is not a hex color (anymore) don't give hints
         if(!hex){
