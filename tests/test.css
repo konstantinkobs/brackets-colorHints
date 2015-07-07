@@ -6,5 +6,10 @@ html, body{
 
 .test{
     background: white;
-    color: #333;
+    color: #123;
+}
+
+
+#color {
+     color: #eee;   
 }

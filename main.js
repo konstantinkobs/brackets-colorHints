@@ -205,6 +205,10 @@ define(function (require, exports, module) {
         this.info = CSSUtils.getInfoAtPos(this.editor, cursor);
         
         // The value that was typed
+        if (!this.info.values[0]) {
+            return null;   
+        }
+        
         this.typed = this.info.values[0].trim();
         
         // RegEx for Hex color
